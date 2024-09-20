@@ -11,6 +11,7 @@ import { post, put } from "../services/apiService";
 const ExpenseForm = () => {
   const isEmpty = (obj) => Object.keys(obj).length === 0;
   const currencies = ["USD", "EUR", "GBP", "JPY", "PKR"];
+  const types = ["Travel", "Food", "Lodging", "Miscellaneous"];
   const user = getItem(CONSTANTS.USERNAME);
   const role = getItem(CONSTANTS.ROLE);
   const navigate = useNavigate();
@@ -170,7 +171,7 @@ const ExpenseForm = () => {
                     onChange={(e) =>
                       handleExpenseChange(expense.id, "title", e.target.value)
                     }
-                    disabled={!role == "Employee"}
+                    disabled={role !== "Employee"}
                     required
                   />
                 </div>
@@ -178,16 +179,20 @@ const ExpenseForm = () => {
                   <label className="block text-sm font-medium text-gray-700">
                     Type
                   </label>
-                  <input
-                    type="text"
+                  <select
                     className="mt-1 block w-full rounded-md bg-gray-100 border-gray-300 shadow-sm focus:border-red-300 focus:ring focus:ring-red-200 focus:ring-opacity-50"
                     value={expense.type}
                     onChange={(e) =>
                       handleExpenseChange(expense.id, "type", e.target.value)
                     }
-                    disabled={!role == "Employee"}
                     required
-                  />
+                  >
+                    {types.map((type) => (
+                      <option key={type} value={type}>
+                        {type}
+                      </option>
+                    ))}
+                  </select>
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700">
@@ -205,7 +210,7 @@ const ExpenseForm = () => {
                       }
                       handleExpenseChange(expense.id, "amount", e.target.value);
                     }}
-                    disabled={!role == "Employee"}
+                    disabled={role !== "Employee"}
                     required
                   />
                 </div>
@@ -225,11 +230,11 @@ const ExpenseForm = () => {
                     }
                     disabled={role !== "Employee"}
                     required
-                    rows={4} // This determines the height of the textarea (number of visible lines)
+                    rows={4}
                   ></textarea>
                 </div>
               </div>
-              {expenses.length > 1 && role == "Employee" && (
+              {expenses.length > 1 && role === "Employee" && (
                 <button
                   type="button"
                   onClick={() => handleRemoveExpense(expense)}
@@ -240,7 +245,7 @@ const ExpenseForm = () => {
               )}
             </div>
           ))}
-          {role == "Employee" && (
+          {role === "Employee" && (
             <button
               type="button"
               onClick={handleAddExpense}
@@ -251,7 +256,7 @@ const ExpenseForm = () => {
           )}
           <div className="mt-4 p-4 bg-gray-100 rounded-lg">
             <p className="text-lg font-semibold">
-              Total Amount: {totalAmount.toFixed(2)} {expenses[0].currency}
+              Total Amount: {totalAmount.toFixed(2)} {currency}
             </p>
           </div>
           <div className="mt-6 flex items-center justify-between">
@@ -273,7 +278,7 @@ const ExpenseForm = () => {
                 </span>
               )}
             </div>
-            {role == "Employee" && (
+            {role === "Employee" && (
               <button
                 type="submit"
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"

@@ -117,9 +117,15 @@ function AuthenticationScreen() {
     });
     setErrors({});
   };
-
   return (
-    <div className="flex-1 flex items-center justify-center bg-white">
+    <div
+      className="flex-1 flex items-center justify-center 
+      bg-center"
+      style={{
+        backgroundImage:
+          'url("https://www.veripark.com/sites/default/files/styles/image_style_1_3_landscape_xl/public/media/images/2024-09/About-us_Banner_2024.jpg?h=61ca0bd2&itok=-aOd6aUk")',
+      }}
+    >
       <div className="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">

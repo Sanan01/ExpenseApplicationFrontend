@@ -62,7 +62,7 @@ const AdminReports = () => {
       get(CONSTANTS.CONTROLLER.ADMIN_API_EXPENSE_HISTORY)
         .then((response) => {
           if (response.statusCode === 200) {
-            setExpenseHistory(response.data);
+            setExpenseHistory(response.data.items);
             console.log("Expense history", response.data);
           } else {
             console.error("Error fetching expense history");
@@ -78,7 +78,7 @@ const AdminReports = () => {
       get(CONSTANTS.CONTROLLER.ADMIN_API_EXPENSE_FORMS)
         .then((response) => {
           if (response.statusCode === 200) {
-            setExpenses(response.data);
+            setExpenses(response.data.items);
           } else {
             console.error("Error fetching expenses");
             toast("Error fetching expenses");

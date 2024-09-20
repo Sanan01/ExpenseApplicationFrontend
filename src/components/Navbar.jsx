@@ -5,11 +5,16 @@ import { getItem } from "../services/storageService";
 const Navbar = () => {
   const role = getItem(CONSTANTS.ROLE);
 
+  // Return null if there's no role
+  if (!role) {
+    return null;
+  }
+
   return (
     <nav className="bg-white text-red-500 shadow-sm">
       <div className="flex justify-start pl-5 items-center h-12">
         <div className="flex justify-between h-16">
-          {role == "Employee" && (
+          {role === "Employee" && (
             <div className="flex items-center">
               <Link
                 to={CONSTANTS.CONTROLLER.EXPENSE_LIST}
@@ -25,7 +30,7 @@ const Navbar = () => {
               </Link>
             </div>
           )}
-          {role == "Manager" && (
+          {role === "Manager" && (
             <div className="flex items-center">
               <Link
                 to={CONSTANTS.CONTROLLER.MANAGER_APPROVAL}
@@ -35,7 +40,7 @@ const Navbar = () => {
               </Link>
             </div>
           )}
-          {role == "Admin" && (
+          {role === "Admin" && (
             <div className="flex items-center">
               <Link
                 to={CONSTANTS.CONTROLLER.ADMIN_REPORTS}
@@ -63,7 +68,7 @@ const Navbar = () => {
               </Link>
             </div>
           )}
-          {role == "Accountant" && (
+          {role === "Accountant" && (
             <div className="flex items-center">
               <Link
                 to={CONSTANTS.CONTROLLER.ACCOUNTANT_PAYMENT}

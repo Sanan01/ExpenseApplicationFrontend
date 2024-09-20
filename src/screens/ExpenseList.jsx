@@ -1,46 +1,48 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from "react";
-import { FaEdit } from "react-icons/fa";
-import Navbar from "../components/Navbar";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { FaEdit, FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
+import { useNavigate } from "react-router-dom";
 import { CONSTANTS } from "../constants";
 import { getItem } from "../services/storageService";
 import { get } from "../services/apiService";
 import { toast } from "react-toastify";
-import Footer from "../components/Footer";
-import Header from "../components/Header";
 
 const ExpenseList = () => {
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchExpenses = () => {
-      get(CONSTANTS.CONTROLLER.GET_EXPENSES)
-        .then((response) => {
-          if (response.statusCode === 200) {
-            setExpenses(response.data);
-          } else {
-            toast("Error fetching expenses");
-          }
-        })
-        .catch((error) => {
-          console.error("Error fetching expenses", error);
-        });
-    };
-    fetchExpenses();
-  }, []);
-
   const user = getItem(CONSTANTS.USERNAME);
 
   const [expenses, setExpenses] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [modalReason, setModalReason] = useState("");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [itemsPerPage] = useState(5);
+
+  // Fetch expenses based on current page, sort order, and search term
+  const fetchExpenses = async (searchTerm = "") => {
+    try {
+      const response = await get(
+        `${CONSTANTS.CONTROLLER.GET_EXPENSES}/?orderBy=${sortOrder}&searchKeyword=${searchTerm}&pageNumber=${currentPage}&pageSize=${itemsPerPage}`
+      );
+      if (response.statusCode === 200) {
+        setExpenses(response.data.items);
+        setCurrentPage(response.data.pageIndex);
+        setTotalPages(response.data.totalPages);
+      } else {
+        toast.error("Error fetching expenses");
+      }
+    } catch (error) {
+      console.error("Error fetching expenses", error);
+      toast.error("Error fetching expenses");
+    }
+  };
+
+  useEffect(() => {
+    fetchExpenses();
+  }, [sortOrder, currentPage]);
 
   const handleEdit = (expense) => {
-    console.log("Edit expense", expense.id);
-    navigate(CONSTANTS.CONTROLLER.EXPENSE_FORM, {
-      state: expense,
-    });
+    navigate(CONSTANTS.CONTROLLER.EXPENSE_FORM, { state: expense });
   };
 
   const handleViewReason = (reason) => {
@@ -52,18 +54,58 @@ const ExpenseList = () => {
     setIsModalOpen(false);
   };
 
-  function formatDate(isoDateString) {
-    const date = new Date(isoDateString);
-    const day = String(date.getDate()).padStart(2, "0");
-    const month = String(date.getMonth() + 1).padStart(2, "0"); // Months are zero-based
-    const year = date.getFullYear();
+  const handleSearch = (searchTerm) => {
+    setCurrentPage(1);
+    fetchExpenses(searchTerm);
+  };
 
-    return `${day}-${month}-${year}`;
-  }
+  const toggleSortOrder = () => {
+    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
+  };
+
+  const handlePageChange = (newPage) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  };
+
+  const formatDate = (isoDateString) => {
+    const date = new Date(isoDateString);
+    return `${String(date.getDate()).padStart(2, "0")}-${String(
+      date.getMonth() + 1
+    ).padStart(2, "0")}-${date.getFullYear()}`;
+  };
 
   return (
     <div className="mt-64px">
-      <div className="p-4  bg-white">
+      <div className="p-4 bg-white">
+        <div className="flex justify-between items-center mb-4">
+          {/* Search Bar */}
+          <input
+            type="text"
+            placeholder="Search by Status"
+            className="px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500"
+            onChange={(e) => handleSearch(e.target.value)}
+          />
+
+          {/* Sort Button */}
+          <button
+            onClick={toggleSortOrder}
+            className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 flex items-center"
+          >
+            {sortOrder === "asc" ? (
+              <>
+                <FaSortAmountDown className="mr-2" />
+                Sort Desc
+              </>
+            ) : (
+              <>
+                <FaSortAmountUp className="mr-2" />
+                Sort Asc
+              </>
+            )}
+          </button>
+        </div>
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
@@ -115,7 +157,7 @@ const ExpenseList = () => {
                       expense.status === "REJECTED") && (
                       <button
                         onClick={() => handleEdit(expense)}
-                        className="text-indigo-600 hover:text-indigo-900 mr-2"
+                        className="text-red-600 hover:text-red-900 mr-2"
                       >
                         <FaEdit />
                       </button>
@@ -135,6 +177,52 @@ const ExpenseList = () => {
               ))}
             </tbody>
           </table>
+        </div>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-between items-center m-4">
+        <div className="text-sm text-gray-700">
+          Showing {(currentPage - 1) * itemsPerPage + 1} -{" "}
+          {Math.min(currentPage * itemsPerPage, expenses.length)} of{" "}
+          {expenses.length} results
+        </div>
+        <div className="flex space-x-2">
+          <button
+            disabled={currentPage === 1}
+            onClick={() => handlePageChange(currentPage - 1)}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === 1
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-red-600 text-white hover:bg-red-700"
+            }`}
+          >
+            Previous
+          </button>
+          {[...Array(totalPages).keys()].map((pageNumber) => (
+            <button
+              key={pageNumber}
+              onClick={() => handlePageChange(pageNumber + 1)}
+              className={`px-3 py-1 rounded-md ${
+                pageNumber + 1 === currentPage
+                  ? "bg-red-600 text-white"
+                  : "bg-white text-red-600 hover:bg-red-50"
+              }`}
+            >
+              {pageNumber + 1}
+            </button>
+          ))}
+          <button
+            disabled={currentPage === totalPages}
+            onClick={() => handlePageChange(currentPage + 1)}
+            className={`px-3 py-1 rounded-md ${
+              currentPage === totalPages
+                ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                : "bg-red-600 text-white hover:bg-red-700"
+            }`}
+          >
+            Next
+          </button>
         </div>
       </div>
 
