@@ -1,4 +1,4 @@
-import profilePhoto from "../assets/passport_photo.png";
+import profilePhoto from "../../assets/passport_photo.png";
 
 const AboutDeveloper = () => {
   return (

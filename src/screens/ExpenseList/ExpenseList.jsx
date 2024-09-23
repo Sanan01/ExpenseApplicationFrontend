@@ -1,80 +1,23 @@
-import { useState, useEffect } from "react";
 import { FaEdit, FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { CONSTANTS } from "../constants";
-import { getItem } from "../services/storageService";
-import { get } from "../services/apiService";
-import { toast } from "react-toastify";
+import { useExpenseListContainer } from "./ExpenseListContainer";
 
 const ExpenseList = () => {
-  const navigate = useNavigate();
-  const user = getItem(CONSTANTS.USERNAME);
-
-  const [expenses, setExpenses] = useState([]);
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalReason, setModalReason] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [itemsPerPage] = useState(5);
-
-  // Fetch expenses based on current page, sort order, and search term
-  const fetchExpenses = async (searchTerm = "") => {
-    try {
-      const response = await get(
-        `${CONSTANTS.CONTROLLER.GET_EXPENSES}/?orderBy=${sortOrder}&searchKeyword=${searchTerm}&pageNumber=${currentPage}&pageSize=${itemsPerPage}`
-      );
-      if (response.statusCode === 200) {
-        setExpenses(response.data.items);
-        setCurrentPage(response.data.pageIndex);
-        setTotalPages(response.data.totalPages);
-      } else {
-        toast.error("Error fetching expenses");
-      }
-    } catch (error) {
-      console.error("Error fetching expenses", error);
-      toast.error("Error fetching expenses");
-    }
-  };
-
-  useEffect(() => {
-    fetchExpenses();
-  }, [sortOrder, currentPage]);
-
-  const handleEdit = (expense) => {
-    navigate(CONSTANTS.CONTROLLER.EXPENSE_FORM, { state: expense });
-  };
-
-  const handleViewReason = (reason) => {
-    setModalReason(reason);
-    setIsModalOpen(true);
-  };
-
-  const closeModal = () => {
-    setIsModalOpen(false);
-  };
-
-  const handleSearch = (searchTerm) => {
-    setCurrentPage(1);
-    fetchExpenses(searchTerm);
-  };
-
-  const toggleSortOrder = () => {
-    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-  };
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
-
-  const formatDate = (isoDateString) => {
-    const date = new Date(isoDateString);
-    return `${String(date.getDate()).padStart(2, "0")}-${String(
-      date.getMonth() + 1
-    ).padStart(2, "0")}-${date.getFullYear()}`;
-  };
+  const {
+    expenses,
+    isModalOpen,
+    modalReason,
+    sortOrder,
+    currentPage,
+    totalPages,
+    itemsPerPage,
+    handleEdit,
+    handleViewReason,
+    closeModal,
+    handleSearch,
+    toggleSortOrder,
+    handlePageChange,
+    formatDate,
+  } = useExpenseListContainer();
 
   return (
     <div className="mt-64px">
@@ -114,7 +57,7 @@ const ExpenseList = () => {
                   Date
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Employee
+                  Form Id
                 </th>
                 <th className="px-4 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
                   Status
@@ -134,12 +77,13 @@ const ExpenseList = () => {
                     {formatDate(expense.dateUpdated)}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    {user}
+                    {expense.id}
                   </td>
                   <td className="px-4 py-4 whitespace-nowrap">
                     <span
                       className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                        expense.status === "APPROVED"
+                        expense.status === "APPROVED" ||
+                        expense.status === "PAID"
                           ? "bg-green-100 text-green-800"
                           : expense.status === "PENDING"
                           ? "bg-yellow-100 text-yellow-800"

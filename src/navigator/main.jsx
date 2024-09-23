@@ -1,17 +1,17 @@
 import { Navigate, Routes, Route } from "react-router-dom";
-import AuthenticationScreen from "../screens/AuthenticationScreen";
+import AuthenticationScreen from "../screens/Authentication/AuthenticationScreen";
 import { CONSTANTS } from "../constants";
-import ExpenseList from "../screens/ExpenseList";
-import ExpenseForm from "../screens/ExpenseFormScreen";
-import AdminReports from "../screens/AdminReportScreen";
-import AccountantPayment from "../screens/AccountantPaymentScreen";
-import ManagerApproval from "../screens/ManagerApprovalScreen";
+import ExpenseList from "../screens/ExpenseList/ExpenseList";
+import ExpenseForm from "../screens/CreateExpenseForm/ExpenseFormScreen";
+import AdminReports from "../screens/AdminReport/AdminReportScreen";
+import AccountantPayment from "../screens/AccountantPayment/AccountantPaymentScreen";
+import ManagerApproval from "../screens/ApproveExpenseForm/ManagerApprovalScreen";
 import { getItem } from "../services/storageService";
 import ProtectedRoute from "./protectedRoute";
-import ExpenseHistoryScreen from "../screens/ExpenseHistoryScreen";
-import AdminExpenseFormScreen from "../screens/AdminExpenseFormScreen";
-import UpdateManagerScreen from "../screens/UpdateManagerScreen";
-import AboutDeveloper from "../screens/AboutDeveloper";
+import ExpenseHistoryScreen from "../screens/ExpenseHistory/ExpenseHistoryScreen";
+import AdminExpenseFormScreen from "../screens/AdminExpenseForm/AdminExpenseFormScreen";
+import UpdateManagerScreen from "../screens/AssignManager/UpdateManagerScreen";
+import AboutDeveloper from "../screens/AboutDeveloper/AboutDeveloper";
 
 export const RouteManager = () => {
   const isAuth = getItem(CONSTANTS.AUTHENTICATED);

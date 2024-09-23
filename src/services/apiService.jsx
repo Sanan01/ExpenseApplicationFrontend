@@ -28,6 +28,7 @@ export const get = async (endpoint) => {
   else if (response.status === 401) {
     toast("Session expired. Please login again");
     clearAllData();
+    window.location.href = CONSTANTS.CONTROLLER.LOGIN_PAGE;
   }
   throw new Error(response.problem);
 };
@@ -38,6 +39,7 @@ export const post = async (endpoint, data) => {
   else if (response.status === 401) {
     toast("Session expired. Please login again");
     clearAllData();
+    window.location.href = CONSTANTS.CONTROLLER.LOGIN_PAGE;
   }
   throw new Error(response.problem);
 };
@@ -48,6 +50,7 @@ export const put = async (endpoint, data) => {
   else if (response.status === 401) {
     toast("Session expired. Please login again");
     clearAllData();
+    window.location.href = CONSTANTS.CONTROLLER.LOGIN_PAGE;
   }
   throw new Error(response.problem);
 };

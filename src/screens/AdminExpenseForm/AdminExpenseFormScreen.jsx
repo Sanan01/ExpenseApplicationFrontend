@@ -1,58 +1,18 @@
-import { useState, useEffect } from "react";
-import { CONSTANTS } from "../constants/index";
-import { get } from "../services/apiService";
-import { toast } from "react-toastify";
 import { FaSortAmountDown, FaSortAmountUp } from "react-icons/fa";
+import { useAdminExpenseForm } from "./AdminExpenseFormContainer";
 
 export default function AdminExpenseFormScreen() {
-  const [pendingExpenses, setPendingExpenses] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [sortOrder, setSortOrder] = useState("asc");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [itemsPerPage] = useState(4); // Page size
-
-  useEffect(() => {
-    fetchExpenses();
-  }, [searchTerm, sortOrder, currentPage]);
-
-  const fetchExpenses = () => {
-    get(
-      `${CONSTANTS.CONTROLLER.ADMIN_API_EXPENSE_FORMS}?searchKeyword=${searchTerm}&orderBy=${sortOrder}&pageNumber=${currentPage}&pageSize=${itemsPerPage}`
-    )
-      .then((response) => {
-        if (response.statusCode === 200) {
-          setPendingExpenses(response.data.items);
-          setTotalPages(response.data.totalPages);
-        } else {
-          console.error("Error fetching expenses");
-          toast("Error fetching expenses");
-        }
-      })
-      .catch((error) => {
-        console.error("Error fetching expenses", error);
-        toast("Error fetching expenses");
-      });
-  };
-
-  const formatDate = (date) => {
-    return new Date(date).toLocaleDateString(); // Sample formatting
-  };
-
-  const toggleSortOrder = () => {
-    setSortOrder((prevOrder) => (prevOrder === "asc" ? "desc" : "asc"));
-  };
-
-  const handleSearch = (e) => {
-    setSearchTerm(e.target.value);
-    setCurrentPage(1); // Reset to first page after searching
-  };
-
-  const handlePageChange = (newPage) => {
-    if (newPage >= 1 && newPage <= totalPages) {
-      setCurrentPage(newPage);
-    }
-  };
+  const {
+    pendingExpenses,
+    sortOrder,
+    currentPage,
+    totalPages,
+    itemsPerPage,
+    formatDate,
+    toggleSortOrder,
+    handleSearch,
+    handlePageChange,
+  } = useAdminExpenseForm();
 
   return (
     <div className="p-8 bg-white">
@@ -94,9 +54,9 @@ export default function AdminExpenseFormScreen() {
             >
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-sm font-semibold text-gray-700">
-                  Employee Id:{" "}
+                  Employee :{" "}
                   <span className="text-red-600 text-sm">
-                    {expense.applicationUserId}
+                    {expense.applicationUser.userName}
                   </span>
                 </h3>
                 <p className="text-gray-500 text-sm">
