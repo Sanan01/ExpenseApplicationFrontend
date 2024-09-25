@@ -1,86 +1,81 @@
-import { Link } from "react-router-dom";
+import {
+  Disclosure,
+  DisclosureButton,
+  DisclosurePanel,
+} from "@headlessui/react";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { CONSTANTS } from "../constants";
 import { getItem } from "../services/storageService";
+import PlaceholderImage from "../assets/person.png";
+import { useMemo } from "react";
+import { roleNavItems } from "../constants/roleNavItems";
+import { UserProfile } from "./UserProfile";
+import { NavigationLinks } from "./NavigationLinks";
 
 const Navbar = () => {
+  const userName = getItem(CONSTANTS.USERNAME);
   const role = getItem(CONSTANTS.ROLE);
-
-  // Return null if there's no role
-  if (!role) {
-    return null;
-  }
+  const navItems = useMemo(() => roleNavItems[role] || [], [role]);
 
   return (
-    <nav className="bg-white text-red-500 shadow-sm">
-      <div className="flex justify-start pl-5 items-center h-12">
-        <div className="flex justify-between h-16">
-          {role === "Employee" && (
-            <div className="flex items-center">
-              <Link
-                to={CONSTANTS.CONTROLLER.EXPENSE_LIST}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Expense Form Status
-              </Link>
-              <Link
-                to={CONSTANTS.CONTROLLER.EXPENSE_FORM}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Create New
-              </Link>
-            </div>
-          )}
-          {role === "Manager" && (
-            <div className="flex items-center">
-              <Link
-                to={CONSTANTS.CONTROLLER.MANAGER_APPROVAL}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Manager Approval
-              </Link>
-            </div>
-          )}
-          {role === "Admin" && (
-            <div className="flex items-center">
-              <Link
-                to={CONSTANTS.CONTROLLER.ADMIN_REPORTS}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Admin Reports
-              </Link>
-              <Link
-                to={CONSTANTS.CONTROLLER.EXPENSE_HISTORY}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Expense History
-              </Link>
-              <Link
-                to={CONSTANTS.CONTROLLER.ADMIN_EXPENSE_FORMS}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Expense Forms Status
-              </Link>
-              <Link
-                to={CONSTANTS.CONTROLLER.ADMIN_UPDATE_MANAGER}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Assign Manager
-              </Link>
-            </div>
-          )}
-          {role === "Accountant" && (
-            <div className="flex items-center">
-              <Link
-                to={CONSTANTS.CONTROLLER.ACCOUNTANT_PAYMENT}
-                className="text-red-800 text-lg font-semibold mr-6"
-              >
-                Expense Payment
-              </Link>
+    <Disclosure as="nav" className="bg-gradient-to-r from-red-500 to-white">
+      <div className="flex h-16 items-center justify-between px-4 sm:px-6 lg:px-8">
+        <div className="flex items-center">
+          <img
+            alt="VeriPark Logo"
+            src="https://www.veripark.com/themes/custom/rocketship_theme_flex/logo.svg"
+            className="h-8"
+          />
+          {role && (
+            <div className="hidden md:block ml-10">
+              <div className="flex items-baseline space-x-4">
+                <NavigationLinks items={navItems} />
+              </div>
             </div>
           )}
         </div>
+
+        {role && (
+          <div className="hidden md:block">
+            <div className="ml-4 flex items-center md:ml-6">
+              <UserProfile />
+              <div className="ml-3 text-base font-medium text-black">
+                {userName}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {role && (
+          <div className="-mr-2 flex md:hidden">
+            <DisclosureButton className="inline-flex items-center justify-center rounded-md bg-red-500 p-2 text-white hover:bg-red-600">
+              <Bars3Icon className="block h-6 w-6" />
+              <XMarkIcon className="hidden h-6 w-6" />
+            </DisclosureButton>
+          </div>
+        )}
       </div>
-    </nav>
+
+      {role && (
+        <DisclosurePanel className="md:hidden">
+          <div className="space-y-1 px-2 pb-3 pt-2 sm:px-3">
+            <NavigationLinks items={navItems} isMobile />
+          </div>
+          <div className="border-t border-gray-700 pb-3 pt-4">
+            <div className="flex items-center px-5">
+              <img
+                alt="User Profile"
+                src={PlaceholderImage}
+                className="h-10 w-10 rounded-full"
+              />
+              <div className="ml-3 text-base font-medium text-black">
+                {userName}
+              </div>
+            </div>
+          </div>
+        </DisclosurePanel>
+      )}
+    </Disclosure>
   );
 };
 
